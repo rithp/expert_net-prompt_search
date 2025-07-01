@@ -384,32 +384,47 @@ class GeminiService:
         """
         with self._lock:
             try:
-                prompt = f"""Analyze this research problem and extract the most precise and specific technical expertise areas (avoid redundant or overly broad terms; for example, do not include both 'machine learning' and 'deep learning'—choose the most specific and relevant one):
+                prompt = f"""Analyze the following research problem statement and identify the key expertise areas required for an interdisciplinary solution.
 
-Problem: {problem_statement}
+Problem Statement: {problem_statement}
 
-Return JSON with these keys:
+You must output a JSON object with these exact fields:
 
-"required_tags": array of the most precise, non-overlapping technical terms (max 8) in the order of importance.
-"key_domain": Key domains required to solve the problem along with degree of importance of expertise from this area to solve the problem. The domains are to be chosen from [' Biochemistry (BC)', ' Central Animal Facility (CAF)', ' Centre for Ecological Sciences (CES)', ' Centre for Neuroscience (CNS)', ' Microbiology and Cell Biology (MCB)', ' Molecular Biophysics Unit (MBU)', ' Department of Developmental Biology and Genetics (DBG)', ' Inorganic and Physical Chemistry (IPC)', ' Materials Research Centre (MRC)', ' Organic Chemistry (OC)', ' Solid State and Structural Chemistry Unit (SSCU)', ' Computer Science and Automation (CSA)', ' Electrical Communication Engineering (ECE)', ' Electrical Engineering (EE)', ' Electronic Systems Engineering (ESE)', ' Centre for Infrastructure, Sustainable Transportation and Urban Planning (CiSTUP)', ' Department of Bioengineering (BE)', ' Centre for Society and Policy (CSP)', ' Centre for Nano Science and Engineering (CeNSE)', ' Computational and Data Sciences (CDS)', ' Management Studies (MS)', ' Supercomputer Education and Research Centre (SERC)', ' Aerospace Engineering (AE)', ' Centre for Atmospheric and Oceanic Sciences (CAOS)', ' Centre for Earth Sciences (CEaS)', ' Department of Design and Manufacturing (DM)', ' Centre for Sustainable Technologies (formerly known as ASTRA) (CST)', ' Chemical Engineering (CE)', ' Civil Engineering (CiE)', ' Divecha Centre for Climate Change (DCCC)', ' Materials Engineering (Mat. Eng.)', ' Mechanical Engineering (ME)', ' Astronomy and Astrophysics Programme (AAP)', ' Centre for High Energy Physics (CHEP)', ' Instrumentation and Applied Physics\xa0 (IAP)', ' Mathematics\xa0 (MA)', ' Physics (PHY)']
-"explanation": A brief explanation of how the problem can be approached using the required tags.
-Example output:
+1. expertise_tags: An object where keys are broad research domains and values are arrays of specific technical skills within that domain.
+
+2. key_domain: An object mapping department codes to importance weights (0.0-1.0) from this list:
+['Biochemistry (BC)', 'Central Animal Facility (CAF)', 'Centre for Ecological Sciences (CES)', 'Centre for Neuroscience (CNS)', 'Microbiology and Cell Biology (MCB)', 'Molecular Biophysics Unit (MBU)', 'Department of Developmental Biology and Genetics (DBG)', 'Inorganic and Physical Chemistry (IPC)', 'Materials Research Centre (MRC)', 'Organic Chemistry (OC)', 'Solid State and Structural Chemistry Unit (SSCU)', 'Computer Science and Automation (CSA)', 'Electrical Communication Engineering (ECE)', 'Electrical Engineering (EE)', 'Electronic Systems Engineering (ESE)', 'Centre for Infrastructure, Sustainable Transportation and Urban Planning (CiSTUP)', 'Department of Bioengineering (BE)', 'Centre for Society and Policy (CSP)', 'Centre for Nano Science and Engineering (CeNSE)', 'Computational and Data Sciences (CDS)', 'Management Studies (MS)', 'Supercomputer Education and Research Centre (SERC)', 'Aerospace Engineering (AE)', 'Centre for Atmospheric and Oceanic Sciences (CAOS)', 'Centre for Earth Sciences (CEaS)', 'Department of Design and Manufacturing (DM)', 'Centre for Sustainable Technologies (CST)', 'Chemical Engineering (CE)', 'Civil Engineering (CiE)', 'Divecha Centre for Climate Change (DCCC)', 'Materials Engineering (Mat. Eng.)', 'Mechanical Engineering (ME)', 'Astronomy and Astrophysics Programme (AAP)', 'Centre for High Energy Physics (CHEP)', 'Instrumentation and Applied Physics (IAP)', 'Mathematics (MA)', 'Physics (PHY)']
+
+3. explanation: A brief description of how these expertise areas contribute to solving the problem.
+
+Example format:
+
+Problem Statement: "Develop a novel, energy-efficient hardware accelerator for running large language models on edge devices. The solution must address memory bandwidth limitations and support 8-bit quantized neural networks."
+
+Required Output:
+
 {{
-"required_tags": ["remote sensing", "wildfire modeling", "convolutional neural networks"],
-"key_domain": {{"data science": 0.9, "biology": 0.1}},
-"explanation": "Remote sensing is needed for data acquisition, wildfire modeling for simulation, and CNNs for image analysis. Broader terms like 'machine learning' are omitted in favor of more precise tags."
+  "expertise_tags": {{
+    "Deep Learning Optimization": ["Model Quantization", "Network Pruning", "Knowledge Distillation", "Low-Rank Factorization"],
+    "Digital VLSI Design": ["ASIC/FPGA Implementation", "RTL Design (Verilog/VHDL)", "Logic Synthesis", "Power-Performance-Area (PPA) Optimization"],
+    "Computer Architecture": ["In-Memory Computing", "Memory Hierarchy Design", "On-chip Interconnects", "Nesuromorphic Architectures"]
+  }},
+  "key_domain": {{
+    "Computer Science and Automation (CSA)": 0.5,
+    "Electronic Systems Engineering (ESE)": 0.4,
+    "Electrical Engineering (EE)": 0.1
+  }},
+  "explanation": "The proposed approach will first leverage 'Deep Learning Optimization' to compress the language model for edge deployment. Subsequently, 'Digital VLSI Design' skills will be used to implement this optimized model into a custom, power-efficient accelerator. The system's ability to overcome memory bandwidth bottlenecks will be achieved by applying advanced 'Computer Architecture' strategies."
 }}
 
-the key_domain should not miss any important domain. Eg: Dont skip 'Materials Engineering' just because 'Materials Research' is already included in the key_domain.
-IMPORTANT: The required_tags should be specific - more of what a professor would list in their expertise.
-Include ONLY the JSON with no additional text or markdown formatting."""
+Return only the JSON object without any additional text or formatting."""
 
                 # Generate response
                 response = self._model.generate_content(
                     prompt,
                     generation_config={
                         "temperature": 0.2,
-                        "max_output_tokens": 500
+                        "max_output_tokens": 1000  # Increased for longer structured response
                     }
                 )
                 
@@ -421,7 +436,8 @@ Include ONLY the JSON with no additional text or markdown formatting."""
             except Exception as e:
                 logger.error(f"Error extracting tags: {str(e)}")
                 return {
-                    "required_tags": [],
+                    "expertise_tags": {},
+                    "key_domain": {},
                     "explanation": "Tag extraction failed"
                 }
     

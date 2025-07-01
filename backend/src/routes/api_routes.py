@@ -70,9 +70,19 @@ def analyze_problem():
         gemini_result = gemini_service.extract_research_tags(problem_statement)
         gemini_time = time.time() - start_time
         
-        tags = gemini_result.get("required_tags", [])
+        # Handle new format with expertise_tags (grouped) or fallback to required_tags (flat)
+        expertise_tags = gemini_result.get("expertise_tags", {})
+        required_tags = gemini_result.get("required_tags", [])
         key_domain = gemini_result.get("key_domain", {})
         explanation = gemini_result.get("explanation", "")
+        
+        # Extract flat list of tags from expertise_tags structure
+        if expertise_tags:
+            tags = []
+            for field, field_tags in expertise_tags.items():
+                tags.extend(field_tags)
+        else:
+            tags = required_tags
         
         if not tags:
             return jsonify({
@@ -225,6 +235,7 @@ def analyze_problem():
         # Prepare response
         response_data = {
             "tags": tags,
+            "expertise_tags": expertise_tags,  # Include the structured expertise tags
             "key_domain": key_domain,
             "explanation": explanation,
             "team": team,

@@ -199,12 +199,28 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.explanation-card').forEach(card => card.remove());
         
         // Create explanation card if we have data
-        if (apiData.explanation || (apiData.tags && apiData.tags.length)) {
+        if (apiData.explanation || (apiData.tags && apiData.tags.length) || (apiData.expertise_tags && Object.keys(apiData.expertise_tags).length)) {
+            let expertiseTagsHtml = '';
+            if (apiData.expertise_tags && Object.keys(apiData.expertise_tags).length) {
+                expertiseTagsHtml = `<div class="expertise-tags mb-3">
+                    <b>Expertise Areas:</b>
+                    ${Object.entries(apiData.expertise_tags).map(([field, tags]) => 
+                        `<div class="expertise-field mb-2">
+                            <span class="field-name font-semibold text-purple-800">${field}:</span>
+                            <div class="field-tags ml-2">
+                                ${tags.map(tag => `<span class='tag keytag text-sm'>${tag}</span>`).join(' ')}
+                            </div>
+                        </div>`
+                    ).join('')}
+                </div>`;
+            }
+            
             const explanationHtml = `
             <div class="explanation-card bg-white rounded-lg shadow-md p-4 mb-6">
-                <div class="explanation-title font-bold text-lg mb-2 text-purple-700">Explanation</div>
+                <div class="explanation-title font-bold text-lg mb-2 text-purple-700">Analysis Results</div>
                 <div class="explanation-body mb-2">${apiData.explanation ? apiData.explanation : ''}</div>
-                ${apiData.tags && apiData.tags.length ? `<div class="key-tags mb-2"><b>Key Tags:</b> ${apiData.tags.map(t => `<span class='tag keytag'>${t}</span>`).join(' ')}</div>` : ''}
+                ${expertiseTagsHtml}
+                ${apiData.tags && apiData.tags.length && !expertiseTagsHtml ? `<div class="key-tags mb-2"><b>Key Tags:</b> ${apiData.tags.map(t => `<span class='tag keytag'>${t}</span>`).join(' ')}</div>` : ''}
                 ${apiData.key_domain && Object.keys(apiData.key_domain).length ? `<div class="key-domains mb-2"><b>Key Domains:</b> ${Object.entries(apiData.key_domain).map(([k,v]) => `<span class='tag keytag'>${k}: ${v}</span>`).join(' ')}</div>` : ''}
                 ${apiData.grouping_message ? `<div class="grouping-message text-sm text-blue-700 mt-2">${apiData.grouping_message}</div>` : ''}
             </div>`;
