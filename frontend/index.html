@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProblemNet - Problem Statement Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Custom styles beyond Tailwind */
+        body {
+            font-family: 'Poppins', sans-serif; /* Using Poppins */
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); /* Subtle gradient background */
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        
+        /* Style for professor cards */
+        .professor-card {
+            background-color: #ffffff;
+            border-radius: 12px; /* More rounded corners */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Softer, larger shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Space out content */
+        }
+
+        .professor-card:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); /* More prominent shadow on hover */
+        }
+
+        .professor-card .tags span {
+            background-color: #e9d5ff; /* Light purple tag background */
+            color: #6d28d9; /* Purple 700 tag text */
+            border-radius: 9999px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block; /* Ensure margin works */
+        }
+
+        .tag {
+            background-color: #e9d5ff; /* Light purple tag background */
+            color: #6d28d9; /* Purple 700 tag text */
+            border-radius: 9999px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block; /* Ensure margin works */
+        }
+
+        .explanation-card {
+            background: #f7f8fa;
+            border-radius: 10px;
+            box-shadow: 0 1px 6px rgba(99, 102, 241, 0.08);
+            padding: 1.1rem 1.2rem 0.9rem 1.2rem;
+            margin-bottom: 1.2rem;
+            border-left: 5px solid #6366f1;
+            margin-top: 0.5rem;
+            grid-column: 1 / -1; /* Span all columns in grid */
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .explanation-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #3730a3;
+            margin-bottom: 0.4rem;
+        }
+        .explanation-body {
+            font-size: 1.01rem;
+            color: #22223b;
+            margin-bottom: 0.7rem;
+        }
+        .key-tags, .key-domains {
+            margin-bottom: 0.5rem;
+        }
+        .tag.keytag {
+            background: #818cf8;
+            color: #fff;
+            border-radius: 5px;
+            padding: 0.13rem 0.6rem;
+            font-size: 0.89rem;
+            margin: 0 0.13rem 0.13rem 0;
+            display: inline-block;
+        }
+
+        .prof-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem 1.2rem 0.7rem 1.2rem;
+            background: #f3f4f6;
+            border-top: 1px solid #e5e7eb;
+            border-radius: 0 0 12px 12px;
+            font-size: 0.97rem;
+        }
+        .prof-card-footer a {
+            color: #6d28d9;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .prof-card-footer a:hover {
+            text-decoration: underline;
+            color: #4c1d95;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="w-full bg-white shadow-lg py-10 px-4 md:px-8 lg:px-12 flex flex-col items-center relative z-10">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6 text-center">Find Your Academic Match</h1>
+        
+        <div class="w-full max-w-3xl relative">
+            <textarea id="problem-input" placeholder="Describe your research problem here..." class="w-full px-6 py-4 border border-gray-300 rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500 text-lg transition duration-300 ease-in-out" rows="4"></textarea>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="analyze-btn" class="bg-purple-600 text-white px-6 py-3 rounded-full hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 transition duration-300 ease-in-out flex items-center">
+                    <i class="fas fa-search mr-2"></i>
+                    Analyze Problem
+                </button>
+                <button id="clear-btn" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-200 transition duration-300 ease-in-out flex items-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Clear
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-12 px-4 md:px-8 lg:px-12 w-full">
+
+        <section id="loading-section" class="hidden w-full max-w-4xl mx-auto">
+            <div class="bg-white p-10 rounded-lg shadow-md text-center">
+                <div class="flex justify-center mb-6">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-700"></div>
+                </div>
+                <p class="text-xl text-gray-600">Analyzing your problem statement...</p>
+            </div>
+        </section>
+        
+        <section id="filter-sort-bar" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0 flex items-center">
+                    <div id="sort-by-container" class="flex items-center">
+                        <label for="sort-by" class="font-semibold text-gray-700 mr-3 text-lg">Sort by:</label>
+                        <select id="sort-by" class="border border-gray-300 rounded-md px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="relevance">Relevance</option>
+                            <option value="alphabetical">Alphabetical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="font-semibold text-gray-700 mr-3 text-lg">Filter:</span>
+                    <select id="filter-department" class="border border-gray-300 rounded-md px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <section id="tab-navigation" class="bg-white rounded-lg shadow-md mb-8 hidden">
+            <div class="flex border-b border-gray-200">
+                <button id="team-tab" class="flex-1 py-4 px-6 text-center font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50 transition-all duration-200">
+                    <i class="fas fa-users mr-2"></i>
+                    Team
+                </button>
+                <button id="individual-tab" class="flex-1 py-4 px-6 text-center font-semibold text-gray-600 border-b-2 border-transparent hover:text-purple-600 hover:bg-purple-50 transition-all duration-200">
+                    <i class="fas fa-user mr-2"></i>
+                    Individual
+                </button>
+            </div>
+        </section>
+
+        <section id="professor-results">
+            <!-- Team Results -->
+            <div id="team-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Team results will be rendered here by script.js -->
+                <div class="bg-white p-8 rounded-lg shadow-md text-center col-span-full">
+                    <p class="text-gray-600 text-lg">Enter your problem statement above to find professors...</p>
+                </div>
+            </div>
+            
+            <!-- Individual Results -->
+            <div id="individual-results" class="hidden">
+                <!-- Individual professors will be rendered here by script.js -->
+            </div>
+        </section>
+        
+        <div id="tagwise-table-container" class="mt-8 hidden">
+            <!-- Tag-wise table will be populated here -->
+        </div>
+    </main>
+
+    <footer class="w-full bg-white shadow-inner mt-12 py-6 text-center">
+        <p class="text-gray-600">&copy; 2025 ProblemNet - Find the right experts for your research</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
