@@ -114,7 +114,7 @@ ProblemNet/
 ### Professor Matching
 - **Semantic Similarity**: Uses SentenceTransformers for text embeddings
 - **Weighted Scoring**: Combines tag relevance with domain expertise
-- **Rank Calculation**: `(semantic_score^2.1 + weighted_score^2) / 2`
+- **Rank Calculation**: `(semantic_score^2.1 + weighted_score^2) / 2` 
 - **Department Weighting**: Adjusts scores based on departmental relevance
 
 ### Performance Optimization
@@ -139,6 +139,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Google Gemini AI for intelligent problem analysis
 - SentenceTransformers for semantic text understanding
 - MongoDB for robust data storage
-- The academic community for inspiration and data
+- Personal websites of IISc professors
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+
